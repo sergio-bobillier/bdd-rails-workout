@@ -49,13 +49,12 @@ end
 RSpec.feature 'Users can sign-out of the application' do
   include_context 'A user already exists'
 
-  scenario 'A user signs-in then signs-out' do
-    visit '/'
+  before do
+    login_as @john
+  end
 
-    click_link 'Sign-in'
-    fill_in 'Email', with: @john.email
-    fill_in 'Password', with: @john.password
-    click_button 'Log in'
+  scenario 'A signed-in user signs-out' do
+    visit '/'
 
     click_link 'Sign-out'
     expect(page.current_path).to eq(root_path)
