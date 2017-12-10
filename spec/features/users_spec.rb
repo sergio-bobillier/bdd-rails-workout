@@ -1,5 +1,9 @@
 require 'rails_helper'
 
+RSpec.configure do |rspec|
+  rspec.shared_context_metadata_behavior = :apply_to_host_groups
+end
+
 RSpec.feature 'Users can sign-up on the application' do
   scenario 'A user signs-up with valid credentials' do
     visit '/'
@@ -17,10 +21,14 @@ RSpec.feature 'Users can sign-up on the application' do
   end
 end
 
-RSpec.feature 'Users can sign-in into the application' do
+RSpec.shared_context 'A user already exists' do
   before do
     @john = User.create!(email: 'john@example.com', password: 'password')
   end
+end
+
+RSpec.feature 'Users can sign-in into the application' do
+  include_context 'A user already exists'
 
   scenario 'A user signs-in with valid credentials' do
     visit '/'
@@ -35,5 +43,22 @@ RSpec.feature 'Users can sign-in into the application' do
     expect(page.current_path).to eq(root_path)
     expect(page).to have_content 'Signed in successfully.'
     expect(page).to have_content "Signed in as #{@john.email}"
+  end
+end
+
+RSpec.feature 'Users can sign-out of the application' do
+  include_context 'A user already exists'
+
+  scenario 'A user signs-in then signs-out' do
+    visit '/'
+
+    click_link 'Sign-in'
+    fill_in 'Email', with: @john.email
+    fill_in 'Password', with: @john.password
+    click_button 'Log in'
+
+    click_link 'Sign-out'
+    expect(page.current_path).to eq(root_path)
+    expect(page).to have_content 'Signed out successfully.'
   end
 end
