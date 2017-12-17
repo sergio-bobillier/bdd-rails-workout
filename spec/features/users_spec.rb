@@ -11,6 +11,8 @@ RSpec.feature 'Users can sign-up on the application' do
     click_link 'Sign-up'
     expect(page.current_path).to eq(new_user_registration_path)
 
+    fill_in 'First name', with: 'John'
+    fill_in 'Last name', with: 'Doe'
     fill_in 'Email', with: 'john@example.com'
     fill_in 'Password', with: 'password'
     fill_in 'Password confirmation', with: 'password'
@@ -18,6 +20,7 @@ RSpec.feature 'Users can sign-up on the application' do
 
     expect(page.current_path).to eq(root_path)
     expect(page).to have_content 'You have signed up successfully.'
+    expect(page).to have_content 'John Doe'
   end
 end
 
