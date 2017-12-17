@@ -84,6 +84,7 @@ RSpec.feature 'Users can edit existing exercises' do
     fill_in 'Duration', with: 50
     click_button 'Save'
 
+    expect(page.current_path).to eq (user_exercise_path(@john, @exercises.first))
     expect(page).to have_content('Exercise has been updated')
     expect(page).to have_content('50')
     expect(page).not_to have_content(@exercises.first.duration_in_min)
