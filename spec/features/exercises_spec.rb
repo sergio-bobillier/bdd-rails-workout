@@ -89,3 +89,18 @@ RSpec.feature 'Users can edit existing exercises' do
     expect(page).not_to have_content(@exercises.first.duration_in_min)
   end
 end
+
+RSpec.feature 'Users can delete exercises' do
+  include_context 'A user is logged-in'
+  include_context 'The user has exercises'
+
+  scenario 'The user tries to delete an exercise' do
+    visit '/'
+
+    click_link 'My Lounge'
+    find("a[href='#{user_exercise_path(@john, @exercises.first)}'][data-method=delete]").click
+
+    expect(page.current_path).to eq(user_exercises_path(@john))
+    expect(page).to have_content('Exercise has been deleted')
+  end
+end
