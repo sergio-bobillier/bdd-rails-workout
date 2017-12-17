@@ -7,6 +7,15 @@ RSpec.shared_context 'A user is logged-in' do
   end
 end
 
+RSpec.shared_context 'The user has exercises' do
+  before do
+    @exercises = [
+      @john.exercises.create!(duration_in_min: 45, workout: 'Body building routine', workout_date: Date.today - 3.days),
+      @john.exercises.create!(duration_in_min: 35, workout: 'Cardio', workout_date: Date.today)
+    ]
+  end
+end
+
 RSpec.feature 'Users can create exercises' do
   include_context 'A user is logged-in'
 
@@ -19,7 +28,7 @@ RSpec.feature 'Users can create exercises' do
 
     fill_in 'Duration', with: 70
     fill_in 'Workout details', with: 'Weight lifting'
-    fill_in 'Activity date', with: '2017-12-10'
+    fill_in 'Activity date', with: Date.today
     click_button 'Save'
 
     expect(page).to have_content 'Exercise has been created'
@@ -47,13 +56,7 @@ end
 
 RSpec.feature 'Users can list their exercises' do
   include_context 'A user is logged-in'
-
-  before do
-    @exercises = [
-      @john.exercises.create(duration_in_min: 20, workout: 'Body building routine', workout_date: '2017-12-09'),
-      @john.exercises.create(duration_in_min: 20, workout: 'Cardio', workout_date: '2017-12-10')
-    ]
-  end
+  include_context 'The user has exercises'
 
   scenario "The user click 'My Lounge' link to see it's exercises list" do
     visit '/'
@@ -65,5 +68,24 @@ RSpec.feature 'Users can list their exercises' do
       expect(page).to have_content exercise.workout
       expect(page).to have_content exercise.workout_date
     end
+  end
+end
+
+RSpec.feature 'Users can edit existing exercises' do
+  include_context 'A user is logged-in'
+  include_context 'The user has exercises'
+
+  scenario 'The user tries to edit an exercise with valid inputs' do
+    visit '/'
+
+    click_link 'My Lounge'
+    find("a[href='#{edit_user_exercise_path(@john, @exercises.first)}']").click
+
+    fill_in 'Duration', with: 50
+    click_button 'Save'
+
+    expect(page).to have_content('Exercise has been updated')
+    expect(page).to have_content('50')
+    expect(page).not_to have_content(@exercises.first.duration_in_min)
   end
 end
