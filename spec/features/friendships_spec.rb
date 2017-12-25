@@ -69,3 +69,22 @@ RSpec.feature "Show a friend's workout" do
     expect(page).to have_css 'div#chart'
   end
 end
+
+RSpec.feature "Unfollow friends" do
+  include_context 'A pair of users exist and one of them is logged-in'
+  include_context 'One of the users is following the other'
+
+  scenario 'A user unfollows a friend' do
+    visit '/'
+    click_link 'My Lounge'
+
+    page_current_path = page.current_path
+    expect(page).to have_content @sarah.full_name
+    link = "a[href='#{friendship_path(@john.current_friendship(@sarah).id)}'][data-method=delete]"
+    find(link).click
+
+    expect(page.current_path).to eq page_current_path
+    expect(page).to have_content "#{@sarah.full_name} unfollowed."
+    expect(page).not_to have_link @sarah.full_name
+  end
+end
