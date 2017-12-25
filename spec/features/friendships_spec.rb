@@ -8,6 +8,12 @@ RSpec.shared_context 'A pair of users exist and one of them is logged-in' do
   end
 end
 
+RSpec.shared_context 'One of the users is following the other' do
+  before do
+    Friendship.create(user: @john, friend: @sarah)
+  end
+end
+
 RSpec.feature 'Following friends' do
   include_context 'A pair of users exist and one of them is logged-in'
 
@@ -31,10 +37,7 @@ end
 
 RSpec.feature 'Show followed friends' do
   include_context 'A pair of users exist and one of them is logged-in'
-
-  before do
-    Friendship.create(user: @john, friend: @sarah)
-  end
+  include_context 'One of the users is following the other'
 
   scenario 'A user visits the "My Lounge" page and sees a list of his friends' do
     visit '/'
@@ -43,5 +46,26 @@ RSpec.feature 'Show followed friends' do
     expect(page).to have_content 'My friends'
     expect(page).to have_link @sarah.full_name
     expect(page).to have_link 'Unfollow'
+  end
+end
+
+RSpec.feature "Show a friend's workout" do
+  include_context 'A pair of users exist and one of them is logged-in'
+  include_context 'One of the users is following the other'
+
+  before do
+    @ex1 = @sarah.exercises.create(duration_in_min: 74, workout: 'Weight lifting routine', workout_date: Date.today - 1.day)
+    @ex2 = @sarah.exercises.create(duration_in_min: 55, workout: 'Weight lifting routine', workout_date: Date.today)
+  end
+
+  scenario "A user sees a friend's workout" do
+    visit '/'
+
+    click_link 'My Lounge'
+    click_link @sarah.full_name
+
+    expect(page.current_path).to eq friendship_path(@john.current_friendship(@sarah))
+    expect(page).to have_content @ex2.workout
+    expect(page).to have_css 'div#chart'
   end
 end

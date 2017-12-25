@@ -1,0 +1,10 @@
+<div class="col-md-8">
+  <p id="notice"><%= notice %></p>
+
+  <h1><%= @friend.full_name %>'s Exercises</h1>
+  <%= render partial: 'shared/exercises_list', locals: {actions: false} %>
+
+  <hr />
+  <%= content_tag :div, '', id: 'chart', data: {workouts: @exercises} %>
+  <%= link_to 'Back', user_exercises_path(current_user), class: 'btn btn-primary' %>
+</div>

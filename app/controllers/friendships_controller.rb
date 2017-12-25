@@ -1,6 +1,11 @@
 class FriendshipsController < ApplicationController
   before_action :authenticate_user!
 
+  def show
+    @friend = Friendship.find(params[:id]).friend
+    @exercises = @friend.exercises.all
+  end
+
   def create
     friend = User.find(params[:friend_id])
     head :conflict if current_user.follows_or_same?(friend)
