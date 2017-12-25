@@ -1,5 +1,7 @@
 class User < ApplicationRecord
   has_many :exercises
+  has_many :friendships
+  has_many :friends, through: :friendships, class_name: 'User'
 
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable and :omniauthable
@@ -25,5 +27,9 @@ class User < ApplicationRecord
 
   def full_name
     "#{first_name} #{last_name}"
+  end
+
+  def follows_or_same?(other_user)
+    friendships.map(&:friend).include?(other_user) || self == other_user
   end
 end
