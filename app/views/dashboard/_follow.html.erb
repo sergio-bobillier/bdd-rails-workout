@@ -1,0 +1,3 @@
+<% if current_user && !current_user.follows_or_same?(athlete) %>
+  <%= link_to 'Follow', friendships_path(friend_id: athlete.id), method: :post, class: 'btn btn-primary pull-right' %>
+<% end %>
