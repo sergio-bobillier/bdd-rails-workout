@@ -32,4 +32,8 @@ class User < ApplicationRecord
   def follows_or_same?(other_user)
     friendships.map(&:friend).include?(other_user) || self == other_user
   end
+
+  def current_friendship(friend)
+    friendships.where(friend: friend).first
+  end
 end
